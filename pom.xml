@@ -27,18 +27,18 @@
 
   <distributionManagement>
     <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>artifact-registry</id>
+      <url>artifactregistry://australia-southeast1-maven.pkg.dev/upside-ci/nct-maven-snapshots</url>
     </snapshotRepository>
     <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+      <id>artifact-registry</id>
+      <url>artifactregistry://australia-southeast1-maven.pkg.dev/upside-ci/nct-maven-release</url>
     </repository>
   </distributionManagement>
 
   <issueManagement>
     <system>Github</system>
-    <url>https://github.com/openzipkin/zipkin-gcp/issues</url>
+    <url>https://github.com/UpsideRealty/zipkin-gcp/issues</url>
   </issueManagement>
 
   <properties>
@@ -150,9 +150,9 @@
   </licenses>
 
   <scm>
-    <url>https://github.com/openzipkin/zipkin-gcp</url>
-    <connection>scm:git:https://github.com/openzipkin/zipkin-gcp.git</connection>
-    <developerConnection>scm:git:https://github.com/openzipkin/zipkin-gcp.git</developerConnection>
+    <url>https://github.com/UpsideRealty/zipkin-gcp</url>
+    <connection>scm:git:https://github.com/UpsideRealty/zipkin-gcp.git</connection>
+    <developerConnection>scm:git:https://github.com/UpsideRealty/zipkin-gcp.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
@@ -221,6 +221,13 @@
   </dependencies>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>com.google.cloud.artifactregistry</groupId>
+        <artifactId>artifactregistry-maven-wagon</artifactId>
+        <version>2.2.0</version>
+      </extension>
+    </extensions>
     <pluginManagement>
       <plugins>
         <!-- mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -->
@@ -284,12 +291,6 @@
             <autoVersionSubmodules>true</autoVersionSubmodules>
             <tagNameFormat>@{project.version}</tagNameFormat>
           </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.sonatype.plugins</groupId>
-          <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>${nexus-staging-maven-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -551,41 +552,6 @@
       <id>release</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <!-- Zipkin release is about ~100M mostly from the two server distributions. Default
-                   will timeout after 5 minutes, which can trigger fairly easily with this size. -->
-              <stagingProgressPauseDurationSeconds>20</stagingProgressPauseDurationSeconds>
-              <stagingProgressTimeoutMinutes>30</stagingProgressTimeoutMinutes>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.4</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                  </gpgArguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
 
           <!-- Creates source jar -->
           <plugin>
@@ -615,7 +581,7 @@
               <!-- hush pedantic warnings: we don't put param and return on everything! -->
               <doclint>none</doclint>
               <!-- While we publish modules, our source is pre-Java9 so tell javadoc that. -->
-              <source>8</source>
+              <source>17</source>
             </configuration>
             <executions>
               <execution>
@@ -631,4 +597,42 @@
       </build>
     </profile>
   </profiles>
+
+  <repositories>
+    <repository>
+      <id>1_central</id>
+      <releases>  <enabled>true</enabled>  </releases>
+      <snapshots> <enabled>false</enabled> </snapshots>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <layout>default</layout>
+    </repository>
+    <repository>
+      <id>2_nct-maven-snapshots</id>
+      <url>artifactregistry://australia-southeast1-maven.pkg.dev/upside-ci/nct-maven-snapshots</url>
+      <releases><enabled>false</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+    <repository>
+      <id>3_nct-maven-release</id>
+      <url>artifactregistry://australia-southeast1-maven.pkg.dev/upside-ci/nct-maven-release</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>central</id>
+      <url>http://repo1.maven.org/maven2</url>
+      <releases> <enabled>false</enabled> </releases>
+      <snapshots> <enabled>false</enabled> </snapshots>
+    </pluginRepository>
+    <pluginRepository>
+      <id>1_central</id>
+      <releases>  <enabled>true</enabled>  </releases>
+      <snapshots> <enabled>true</enabled> </snapshots>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <layout>default</layout>
+    </pluginRepository>
+  </pluginRepositories>
 </project>
