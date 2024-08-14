@@ -13,7 +13,9 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
+  <groupId>nct.forks.io.zipkin.gcp</groupId>
   <artifactId>brave-encoder-stackdriver</artifactId>
+  <version>2.2.5-npe-fix</version>
   <name>Brave Encoder: Google Stackdriver Trace</name>
 
   <properties>
